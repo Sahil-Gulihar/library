@@ -2,7 +2,7 @@ import { BookOpen, MapPin } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { Book } from "@/data/books";
-import { getMasterColorClass } from "@/data/books";
+import { getMasterColorClass, getRelatedParts } from "@/data/books";
 
 interface BookCardProps {
   book: Book;
@@ -13,6 +13,7 @@ const BookCard = ({ book, onViewDetails }: BookCardProps) => {
   const colorClass = getMasterColorClass(book.master);
   const displayLangs = book.languages.slice(0, 4);
   const extraLangs = book.languages.length - 4;
+  const relatedParts = getRelatedParts(book);
 
   return (
     <div className="book-card-hover bg-card rounded border border-border/50 overflow-hidden flex flex-col">
@@ -22,6 +23,21 @@ const BookCard = ({ book, onViewDetails }: BookCardProps) => {
           background: `linear-gradient(160deg, hsl(var(--gold) / 0.08), hsl(var(--cream)) 60%, hsl(var(--gold) / 0.04))`,
         }}
       >
+        {/* Availability badge */}
+        <div className="absolute top-3 right-3">
+          {book.available ? (
+            <span className="text-[9px] px-2 py-0.5 rounded-full bg-green-100 text-green-800 font-medium tracking-wide">Available</span>
+          ) : (
+            <span className="text-[9px] px-2 py-0.5 rounded-full bg-red-100 text-red-800 font-medium tracking-wide">Checked Out</span>
+          )}
+        </div>
+        {book.partNumber && (
+          <div className="absolute top-3 left-3">
+            <span className="text-[9px] px-2 py-0.5 rounded-full bg-foreground/10 text-foreground/70 font-medium tracking-wide">
+              Part {book.partNumber} of {book.parts}
+            </span>
+          </div>
+        )}
         <div className="text-center">
           <BookOpen className="w-7 h-7 text-gold/40 mx-auto mb-3" />
           <h3 className="text-sm text-foreground leading-tight line-clamp-3 tracking-wide">
@@ -44,6 +60,21 @@ const BookCard = ({ book, onViewDetails }: BookCardProps) => {
         <p className="text-xs text-muted-foreground leading-relaxed line-clamp-3 flex-1">
           {book.abstract}
         </p>
+
+        {relatedParts.length > 0 && (
+          <div className="flex flex-wrap gap-1 items-center">
+            <span className="text-[10px] text-muted-foreground mr-1">Also:</span>
+            {relatedParts.map(p => (
+              <button
+                key={p.id}
+                onClick={() => onViewDetails(p)}
+                className="text-[10px] text-gold hover:text-gold/80 underline underline-offset-2 transition-colors"
+              >
+                Part {p.partNumber}
+              </button>
+            ))}
+          </div>
+        )}
 
         <div className="flex flex-wrap gap-1">
           {book.categories.map((c) => (

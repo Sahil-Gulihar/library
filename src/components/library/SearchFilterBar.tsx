@@ -15,6 +15,8 @@ interface SearchFilterBarProps {
   onCategoryToggle: (c: string) => void;
   languageFilter: string[];
   onLanguageToggle: (l: string) => void;
+  availabilityFilter: string;
+  onAvailabilityChange: (v: string) => void;
   sortBy: string;
   onSortChange: (v: string) => void;
   onClearAll: () => void;
@@ -25,6 +27,7 @@ interface SearchFilterBarProps {
 const SearchFilterBar = ({
   search, onSearchChange, masterFilter, onMasterChange,
   categoryFilter, onCategoryToggle, languageFilter, onLanguageToggle,
+  availabilityFilter, onAvailabilityChange,
   sortBy, onSortChange, onClearAll, activeFilterCount, resultCount,
 }: SearchFilterBarProps) => {
   const [showFilters, setShowFilters] = useState(false);
@@ -117,6 +120,27 @@ const SearchFilterBar = ({
               )}
             </div>
 
+            <div className="flex flex-wrap gap-2 items-center">
+              <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-[0.15em] mr-2">Availability:</span>
+              {[
+                { value: "all", label: "All" },
+                { value: "available", label: "Available" },
+                { value: "checked-out", label: "Checked Out" },
+              ].map(opt => (
+                <button
+                  key={opt.value}
+                  onClick={() => onAvailabilityChange(opt.value)}
+                  className={`px-3 py-1 rounded-full text-xs transition-all duration-200 border ${
+                    availabilityFilter === opt.value
+                      ? "bg-foreground text-background border-foreground"
+                      : "bg-card text-foreground border-border/60 hover:border-gold/60"
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+
             <div className="flex flex-wrap gap-3 items-center">
               <Select value={sortBy} onValueChange={onSortChange}>
                 <SelectTrigger className="w-48 text-xs border-border/60">
@@ -156,6 +180,11 @@ const SearchFilterBar = ({
                 {l} <X className="w-3 h-3" />
               </Badge>
             ))}
+            {availabilityFilter !== "all" && (
+              <Badge variant="secondary" className="text-xs gap-1 cursor-pointer" onClick={() => onAvailabilityChange("all")}>
+                {availabilityFilter === "available" ? "Available" : "Checked Out"} <X className="w-3 h-3" />
+              </Badge>
+            )}
           </div>
           <p className="text-[11px] text-muted-foreground whitespace-nowrap ml-4 tracking-wider">
             <span className="text-foreground">{resultCount}</span> books
