@@ -8,17 +8,15 @@ const stats = [
 ];
 
 const StatsBar = () => (
-  <section className="bg-cream border-b border-border">
-    <div className="container mx-auto px-4 py-5">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+  <section className="border-b border-border/50">
+    <div className="container mx-auto px-4 py-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
         {stats.map((s) => (
           <div key={s.label} className="flex items-center gap-3 justify-center">
-            <div className="w-10 h-10 rounded-full bg-gold/10 flex items-center justify-center">
-              <s.icon className="w-5 h-5 text-gold" />
-            </div>
+            <s.icon className="w-4 h-4 text-gold/70" />
             <div>
-              <p className="text-2xl font-serif font-bold text-foreground">{s.value}</p>
-              <p className="text-xs font-sans text-muted-foreground uppercase tracking-wider">{s.label}</p>
+              <p className="text-2xl text-foreground">{s.value}</p>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-[0.15em]">{s.label}</p>
             </div>
           </div>
         ))}
