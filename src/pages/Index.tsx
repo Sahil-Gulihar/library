@@ -1,16 +1,122 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState, useMemo, useCallback, useRef } from "react";
+import { books, type Book } from "@/data/books";
+import LibraryHeader from "@/components/library/LibraryHeader";
+import StatsBar from "@/components/library/StatsBar";
+import SearchFilterBar from "@/components/library/SearchFilterBar";
+import BookCard from "@/components/library/BookCard";
+import BookDetailModal from "@/components/library/BookDetailModal";
+import MasterSpotlight from "@/components/library/MasterSpotlight";
+import LibraryFooter from "@/components/library/LibraryFooter";
+import EmptyState from "@/components/library/EmptyState";
 
-// IMPORTANT: Fully REPLACE this with your own code
-const PlaceholderIndex = () => {
-  // PLACEHOLDER: Replace this entire return statement with the user's app.
-  // The inline background color is intentionally not part of the design system.
+const Index = () => {
+  const [search, setSearch] = useState("");
+  const [masterFilter, setMasterFilter] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
+  const [languageFilter, setLanguageFilter] = useState<string[]>([]);
+  const [availabilityFilter, setAvailabilityFilter] = useState("all");
+  const [sortBy, setSortBy] = useState("title-asc");
+  const [selectedBook, setSelectedBook] = useState<Book | null>(null);
+  const gridRef = useRef<HTMLDivElement>(null);
+
+  const handleCategoryToggle = useCallback((c: string) => {
+    setCategoryFilter(prev => prev.includes(c) ? prev.filter(x => x !== c) : [...prev, c]);
+  }, []);
+
+  const handleLanguageToggle = useCallback((l: string) => {
+    setLanguageFilter(prev => prev.includes(l) ? prev.filter(x => x !== l) : [...prev, l]);
+  }, []);
+
+  const handleClearAll = useCallback(() => {
+    setSearch("");
+    setMasterFilter("");
+    setCategoryFilter([]);
+    setLanguageFilter([]);
+    setAvailabilityFilter("all");
+    setSortBy("title-asc");
+  }, []);
+
+  const handleFilterByMaster = useCallback((master: string) => {
+    setMasterFilter(master);
+    gridRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, []);
+
+  const activeFilterCount = useMemo(() => {
+    let count = 0;
+    if (masterFilter) count++;
+    count += categoryFilter.length;
+    count += languageFilter.length;
+    if (availabilityFilter !== "all") count++;
+    return count;
+  }, [masterFilter, categoryFilter, languageFilter, availabilityFilter]);
+
+  const filtered = useMemo(() => {
+    let result = [...books];
+    if (search) {
+      const s = search.toLowerCase();
+      result = result.filter(b =>
+        b.title.toLowerCase().includes(s) ||
+        b.master.toLowerCase().includes(s) ||
+        b.abstract.toLowerCase().includes(s) ||
+        b.categories.some(c => c.toLowerCase().includes(s))
+      );
+    }
+    if (masterFilter) result = result.filter(b => b.master === masterFilter);
+    if (categoryFilter.length) result = result.filter(b => categoryFilter.some(c => b.categories.includes(c)));
+    if (languageFilter.length) result = result.filter(b => languageFilter.some(l => b.languages.includes(l)));
+    if (availabilityFilter === "available") result = result.filter(b => b.available);
+    if (availabilityFilter === "checked-out") result = result.filter(b => !b.available);
+
+    switch (sortBy) {
+      case "title-asc": result.sort((a, b) => a.title.localeCompare(b.title)); break;
+      case "title-desc": result.sort((a, b) => b.title.localeCompare(a.title)); break;
+      case "year-new": result.sort((a, b) => b.year - a.year); break;
+      case "year-old": result.sort((a, b) => a.year - b.year); break;
+      case "master": result.sort((a, b) => a.master.localeCompare(b.master)); break;
+    }
+    return result;
+  }, [search, masterFilter, categoryFilter, languageFilter, availabilityFilter, sortBy]);
+
   return (
-    <div className="flex min-h-screen items-center justify-center" style={{ backgroundColor: '#fcfbf8' }}>
-      <img data-lovable-blank-page-placeholder="REMOVE_THIS" src="/placeholder.svg" alt="Your app will live here!" />
+    <div className="min-h-screen flex flex-col bg-background">
+      <LibraryHeader />
+      <StatsBar />
+      <SearchFilterBar
+        search={search} onSearchChange={setSearch}
+        masterFilter={masterFilter} onMasterChange={setMasterFilter}
+        categoryFilter={categoryFilter} onCategoryToggle={handleCategoryToggle}
+        languageFilter={languageFilter} onLanguageToggle={handleLanguageToggle}
+        availabilityFilter={availabilityFilter} onAvailabilityChange={setAvailabilityFilter}
+        sortBy={sortBy} onSortChange={setSortBy}
+        onClearAll={handleClearAll}
+        activeFilterCount={activeFilterCount}
+        resultCount={filtered.length}
+      />
+
+      {/* Book grid */}
+      <main ref={gridRef} className="flex-1 container mx-auto px-4 py-8">
+        {filtered.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filtered.map(book => (
+              <BookCard key={book.id} book={book} onViewDetails={setSelectedBook} />
+            ))}
+          </div>
+        ) : (
+          <EmptyState />
+        )}
+      </main>
+
+      <div className="gold-divider" />
+      <MasterSpotlight onFilterByMaster={handleFilterByMaster} />
+      <LibraryFooter />
+
+      <BookDetailModal
+        book={selectedBook}
+        open={!!selectedBook}
+        onClose={() => setSelectedBook(null)}
+      />
     </div>
   );
 };
-
-const Index = PlaceholderIndex;
 
 export default Index;
