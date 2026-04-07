@@ -1,4 +1,5 @@
 import { Flower2 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const LibraryHeader = () => {
   return (
@@ -17,13 +18,20 @@ const LibraryHeader = () => {
             Sacred Literature of the Masters
           </p>
           <nav className="flex gap-8 mt-3 text-xs tracking-[0.15em] uppercase text-foreground/70">
-            {["Home", "Browse", "By Master", "About"].map((item) => (
-              <button
-                key={item}
+            {[
+              { label: "Home", to: "/" },
+              { label: "Browse", to: "/" },
+              { label: "By Master", to: "/" },
+              { label: "Attendance", to: "/attendance" },
+              { label: "About", to: "/" },
+            ].map((item) => (
+              <Link
+                key={item.label}
+                to={item.to}
                 className="hover:text-gold transition-colors duration-300 pb-1 border-b border-transparent hover:border-gold/40"
               >
-                {item}
-              </button>
+                {item.label}
+              </Link>
             ))}
           </nav>
         </div>

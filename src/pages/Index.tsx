@@ -14,6 +14,7 @@ const Index = () => {
   const [masterFilter, setMasterFilter] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
   const [languageFilter, setLanguageFilter] = useState<string[]>([]);
+  const [availabilityFilter, setAvailabilityFilter] = useState<string>("all");
   const [sortBy, setSortBy] = useState("title-asc");
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
   const gridRef = useRef<HTMLDivElement>(null);
@@ -31,6 +32,7 @@ const Index = () => {
     setMasterFilter("");
     setCategoryFilter([]);
     setLanguageFilter([]);
+    setAvailabilityFilter("all");
     setSortBy("title-asc");
   }, []);
 
@@ -44,8 +46,9 @@ const Index = () => {
     if (masterFilter) count++;
     count += categoryFilter.length;
     count += languageFilter.length;
+    if (availabilityFilter !== "all") count++;
     return count;
-  }, [masterFilter, categoryFilter, languageFilter]);
+  }, [masterFilter, categoryFilter, languageFilter, availabilityFilter]);
 
   const filtered = useMemo(() => {
     let result = [...books];
@@ -61,6 +64,8 @@ const Index = () => {
     if (masterFilter) result = result.filter(b => b.master === masterFilter);
     if (categoryFilter.length) result = result.filter(b => categoryFilter.some(c => b.categories.includes(c)));
     if (languageFilter.length) result = result.filter(b => languageFilter.some(l => b.languages.includes(l)));
+    if (availabilityFilter === "available") result = result.filter(b => b.available);
+    if (availabilityFilter === "checked-out") result = result.filter(b => !b.available);
 
     switch (sortBy) {
       case "title-asc": result.sort((a, b) => a.title.localeCompare(b.title)); break;
@@ -70,7 +75,7 @@ const Index = () => {
       case "master": result.sort((a, b) => a.master.localeCompare(b.master)); break;
     }
     return result;
-  }, [search, masterFilter, categoryFilter, languageFilter, sortBy]);
+  }, [search, masterFilter, categoryFilter, languageFilter, availabilityFilter, sortBy]);
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -81,6 +86,7 @@ const Index = () => {
         masterFilter={masterFilter} onMasterChange={setMasterFilter}
         categoryFilter={categoryFilter} onCategoryToggle={handleCategoryToggle}
         languageFilter={languageFilter} onLanguageToggle={handleLanguageToggle}
+        availabilityFilter={availabilityFilter} onAvailabilityChange={setAvailabilityFilter}
         sortBy={sortBy} onSortChange={setSortBy}
         onClearAll={handleClearAll}
         activeFilterCount={activeFilterCount}
@@ -107,6 +113,7 @@ const Index = () => {
         book={selectedBook}
         open={!!selectedBook}
         onClose={() => setSelectedBook(null)}
+        onViewBook={setSelectedBook}
       />
     </div>
   );
