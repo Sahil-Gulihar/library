@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useMemo, useCallback, useRef } from "react";
 import { books, type Book } from "@/data/books";
 import LibraryHeader from "@/components/library/LibraryHeader";

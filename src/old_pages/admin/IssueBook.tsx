@@ -1,3 +1,5 @@
+"use client";
+
 import * as React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -15,7 +17,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { toast } from "sonner";
@@ -80,19 +82,10 @@ export default function IssueBook() {
     form.reset();
   }
 
-  // Only show available books
-  const availableBooks = books.filter(b => b.available);
-
   return (
-    <div className="max-w-4xl mx-auto py-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-2xl">Issue a Book</CardTitle>
-          <CardDescription className="text-lg">
-            Reserve a book and issue it to a team member or person. Search by book name.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+    <div className="max-w-3xl mx-auto">
+      <Card className="border-border/40 shadow-sm">
+        <CardContent className="pt-8">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -102,7 +95,7 @@ export default function IssueBook() {
                   name="bookID"
                   render={({ field }) => (
                     <FormItem className="flex flex-col md:col-span-2">
-                      <FormLabel className="text-lg">Select Book</FormLabel>
+                      <FormLabel className="text-lg font-semibold">Select Book</FormLabel>
                       <Popover open={openCombobox} onOpenChange={setOpenCombobox}>
                         <PopoverTrigger asChild>
                           <FormControl>
@@ -116,8 +109,8 @@ export default function IssueBook() {
                               )}
                             >
                               {field.value
-                                ? availableBooks.find((book) => book.id.toString() === field.value)?.title
-                                : "Search and select an available book..."}
+                                ? books.find((book) => book.id.toString() === field.value)?.title
+                                : "Search and select a book..."}
                               <ChevronsUpDown className="ml-2 h-5 w-5 shrink-0 opacity-50" />
                             </Button>
                           </FormControl>
@@ -126,27 +119,40 @@ export default function IssueBook() {
                           <Command>
                             <CommandInput placeholder="Search book by name..." className="text-lg h-12" />
                             <CommandList>
-                              <CommandEmpty className="py-6 text-center text-lg">No available book found.</CommandEmpty>
+                              <CommandEmpty className="py-6 text-center text-lg">No book found.</CommandEmpty>
                               <CommandGroup>
-                                {availableBooks.map((book) => (
+                                {books.map((book) => (
                                   <CommandItem
                                     key={book.id}
                                     value={`${book.title} ${book.id}`}
-                                    className="text-lg py-3"
+                                    className={cn(
+                                      "text-lg py-3 flex justify-between items-center",
+                                      !book.available && "opacity-50 cursor-not-allowed"
+                                    )}
+                                    disabled={!book.available}
                                     onSelect={() => {
-                                      form.setValue("bookID", book.id.toString());
-                                      setOpenCombobox(false);
+                                      if (book.available) {
+                                        form.setValue("bookID", book.id.toString());
+                                        setOpenCombobox(false);
+                                      }
                                     }}
                                   >
-                                    <Check
-                                      className={cn(
-                                        "mr-2 h-5 w-5",
-                                        book.id.toString() === field.value
-                                          ? "opacity-100"
-                                          : "opacity-0"
-                                      )}
-                                    />
-                                    {book.title} (ID: {book.id})
+                                    <div className="flex items-center">
+                                      <Check
+                                        className={cn(
+                                          "mr-2 h-5 w-5",
+                                          book.id.toString() === field.value
+                                            ? "opacity-100"
+                                            : "opacity-0"
+                                        )}
+                                      />
+                                      <span>{book.title} (ID: {book.id})</span>
+                                    </div>
+                                    {!book.available && (
+                                      <span className="text-xs font-semibold uppercase tracking-wider text-destructive ml-2 bg-destructive/10 px-2 py-1 rounded">
+                                        Issued
+                                      </span>
+                                    )}
                                   </CommandItem>
                                 ))}
                               </CommandGroup>
@@ -169,7 +175,7 @@ export default function IssueBook() {
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-lg">Name</FormLabel>
+                      <FormLabel className="text-lg font-semibold">Name</FormLabel>
                       <FormControl>
                         <Input className="h-12 text-lg" placeholder="Full Name" {...field} />
                       </FormControl>
@@ -183,7 +189,7 @@ export default function IssueBook() {
                   name="phoneNo"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-lg">Phone Number</FormLabel>
+                      <FormLabel className="text-lg font-semibold">Phone Number</FormLabel>
                       <FormControl>
                         <Input className="h-12 text-lg" placeholder="Phone Number" {...field} />
                       </FormControl>
@@ -197,7 +203,7 @@ export default function IssueBook() {
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-lg">Email (Optional)</FormLabel>
+                      <FormLabel className="text-lg font-semibold">Email (Optional)</FormLabel>
                       <FormControl>
                         <Input className="h-12 text-lg" placeholder="Email Address" type="email" {...field} />
                       </FormControl>
@@ -211,7 +217,7 @@ export default function IssueBook() {
                   name="department"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-lg">Sewa Department</FormLabel>
+                      <FormLabel className="text-lg font-semibold">Sewa Department</FormLabel>
                       <FormControl>
                         <Input className="h-12 text-lg" placeholder="Department" {...field} />
                       </FormControl>
@@ -225,7 +231,7 @@ export default function IssueBook() {
                   name="address"
                   render={({ field }) => (
                     <FormItem className="md:col-span-2">
-                      <FormLabel className="text-lg">Address</FormLabel>
+                      <FormLabel className="text-lg font-semibold">Address</FormLabel>
                       <FormControl>
                         <Input className="h-12 text-lg" placeholder="Full Address" {...field} />
                       </FormControl>
@@ -239,7 +245,7 @@ export default function IssueBook() {
                   name="issuingDate"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-lg">Issuing Date</FormLabel>
+                      <FormLabel className="text-lg font-semibold">Issuing Date</FormLabel>
                       <FormControl>
                         <Input className="h-12 text-lg" type="date" {...field} />
                       </FormControl>
@@ -253,7 +259,7 @@ export default function IssueBook() {
                   name="returnDate"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-lg">Return Date</FormLabel>
+                      <FormLabel className="text-lg font-semibold">Return Date</FormLabel>
                       <FormControl>
                         <Input className="h-12 text-lg" type="date" {...field} />
                       </FormControl>

@@ -1,5 +1,7 @@
+"use client";
+
 import React, { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { useAdminStore } from "@/lib/store";
@@ -44,48 +46,42 @@ export default function ModifyBook() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto py-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-2xl">Modify Book</CardTitle>
-          <CardDescription className="text-lg">
-            Manage existing books in the database.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+    <div className="max-w-6xl mx-auto">
+      <Card className="border-border/40 shadow-sm">
+        <CardContent className="p-0">
           <Table>
             <TableHeader>
-              <TableRow className="text-lg">
-                <TableHead className="w-[80px]">ID</TableHead>
-                <TableHead>Title</TableHead>
-                <TableHead>Master</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+              <TableRow className="bg-muted/30 hover:bg-muted/30">
+                <TableHead className="w-[80px] py-5 px-6 font-semibold">ID</TableHead>
+                <TableHead className="py-5 px-6 font-semibold">Title</TableHead>
+                <TableHead className="py-5 px-6 font-semibold">Master</TableHead>
+                <TableHead className="py-5 px-6 font-semibold">Status</TableHead>
+                <TableHead className="text-right py-5 px-6 font-semibold">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {books.map((book) => (
-                <TableRow key={book.id} className="text-base md:text-lg">
-                  <TableCell className="font-medium">{book.id}</TableCell>
-                  <TableCell>{book.title}</TableCell>
-                  <TableCell className="text-muted-foreground">{book.master}</TableCell>
-                  <TableCell>
+                <TableRow key={book.id} className="hover:bg-muted/20 transition-colors">
+                  <TableCell className="font-medium py-4 px-6">{book.id}</TableCell>
+                  <TableCell className="py-4 px-6 font-medium">{book.title}</TableCell>
+                  <TableCell className="text-muted-foreground py-4 px-6">{book.master}</TableCell>
+                  <TableCell className="py-4 px-6">
                     {book.available ? (
-                      <span className="inline-flex items-center rounded-full px-3 py-1 text-sm font-semibold bg-green-100 text-green-800">
+                      <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200">
                         Available
                       </span>
                     ) : (
-                      <span className="inline-flex items-center rounded-full px-3 py-1 text-sm font-semibold bg-yellow-100 text-yellow-800">
+                      <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-amber-100 text-amber-800 border border-amber-200">
                         Issued
                       </span>
                     )}
                   </TableCell>
-                  <TableCell className="text-right flex justify-end gap-2">
-                    <Button variant="ghost" size="lg" className="text-blue-500 hover:text-blue-700 hover:bg-blue-50" onClick={() => handleEditClick(book)}>
-                      <Edit className="w-5 h-5" />
+                  <TableCell className="text-right py-4 px-6 flex justify-end gap-2">
+                    <Button variant="ghost" size="icon" className="text-blue-500 hover:text-blue-700 hover:bg-blue-50 h-9 w-9" onClick={() => handleEditClick(book)}>
+                      <Edit className="w-4 h-4" />
                     </Button>
-                    <Button variant="ghost" size="lg" className="text-red-500 hover:text-red-700 hover:bg-red-50" onClick={() => handleDelete(book.id)}>
-                      <Trash2 className="w-5 h-5" />
+                    <Button variant="ghost" size="icon" className="text-red-500 hover:text-red-700 hover:bg-red-50 h-9 w-9" onClick={() => handleDelete(book.id)}>
+                      <Trash2 className="w-4 h-4" />
                     </Button>
                   </TableCell>
                 </TableRow>

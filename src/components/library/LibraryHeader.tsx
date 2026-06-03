@@ -1,5 +1,5 @@
 import { Flower2 } from "lucide-react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 
 const LibraryHeader = () => {
   return (
@@ -19,15 +19,15 @@ const LibraryHeader = () => {
           </p>
           <nav className="flex gap-8 mt-3 text-xs tracking-[0.15em] uppercase text-foreground/70">
             {[
-              { label: "Home", to: "/" },
-              { label: "Browse", to: "/" },
-              { label: "By Master", to: "/" },
-              { label: "Attendance", to: "/attendance" },
-              { label: "About", to: "/" },
+              { label: "Home", href: "/" },
+              { label: "Browse", href: "/" },
+              { label: "By Master", href: "/" },
+              { label: "Attendance", href: "/admin" },
+              { label: "About", href: "/" },
             ].map((item) => (
               <Link
                 key={item.label}
-                to={item.to}
+                href={item.href}
                 className="hover:text-gold transition-colors duration-300 pb-1 border-b border-transparent hover:border-gold/40"
               >
                 {item.label}

@@ -1,3 +1,5 @@
+"use client";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -6,7 +8,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
 import { MASTERS } from "@/data/books";
 import { useAdminStore } from "@/lib/store";
@@ -35,25 +37,23 @@ export default function AddBook() {
       year: parseInt(values.year, 10),
       abstract: values.abstract,
       shelf: values.shelf,
+      languages: [], // Added to satisfy types
+      categories: [], // Added to satisfy types
     });
     toast.success("Book added successfully!");
     form.reset();
   }
 
   return (
-    <div className="max-w-4xl mx-auto py-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-2xl">Add New Book</CardTitle>
-          <CardDescription className="text-lg">Upload verses and add a new book to the database.</CardDescription>
-        </CardHeader>
-        <CardContent>
+    <div className="max-w-3xl mx-auto">
+      <Card className="border-border/40 shadow-sm">
+        <CardContent className="pt-8">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField control={form.control} name="title" render={({ field }) => (
                   <FormItem className="md:col-span-2">
-                    <FormLabel className="text-lg">Title</FormLabel>
+                    <FormLabel className="text-lg font-semibold">Title</FormLabel>
                     <FormControl><Input className="h-12 text-lg" placeholder="Book Title" {...field} /></FormControl>
                     <FormMessage />
                   </FormItem>
@@ -61,7 +61,7 @@ export default function AddBook() {
                 
                 <FormField control={form.control} name="master" render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-lg">Master</FormLabel>
+                    <FormLabel className="text-lg font-semibold">Master</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger className="h-12 text-lg">
@@ -80,7 +80,7 @@ export default function AddBook() {
                 
                 <FormField control={form.control} name="year" render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-lg">Year</FormLabel>
+                    <FormLabel className="text-lg font-semibold">Year</FormLabel>
                     <FormControl><Input className="h-12 text-lg" placeholder="Publication Year" type="number" {...field} /></FormControl>
                     <FormMessage />
                   </FormItem>
@@ -88,7 +88,7 @@ export default function AddBook() {
                 
                 <FormField control={form.control} name="shelf" render={({ field }) => (
                   <FormItem className="md:col-span-2">
-                    <FormLabel className="text-lg">Shelf Location</FormLabel>
+                    <FormLabel className="text-lg font-semibold">Shelf Location</FormLabel>
                     <FormControl><Input className="h-12 text-lg" placeholder="e.g. Shelf A - Row 1" {...field} /></FormControl>
                     <FormMessage />
                   </FormItem>
@@ -96,7 +96,7 @@ export default function AddBook() {
                 
                 <FormField control={form.control} name="abstract" render={({ field }) => (
                   <FormItem className="md:col-span-2">
-                    <FormLabel className="text-lg">Abstract / Description</FormLabel>
+                    <FormLabel className="text-lg font-semibold">Abstract / Description</FormLabel>
                     <FormControl><Textarea className="text-lg resize-none p-4" placeholder="Book description..." rows={5} {...field} /></FormControl>
                     <FormMessage />
                   </FormItem>
@@ -104,7 +104,7 @@ export default function AddBook() {
                 
                 <FormField control={form.control} name="versesFile" render={({ field: { value, onChange, ...field } }) => (
                   <FormItem className="md:col-span-2">
-                    <FormLabel className="text-lg">Upload Verses File (JSON/CSV)</FormLabel>
+                    <FormLabel className="text-lg font-semibold">Upload Verses File (JSON/CSV)</FormLabel>
                     <FormControl>
                       <Input 
                         className="h-14 text-lg py-3"

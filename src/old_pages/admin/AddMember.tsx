@@ -1,10 +1,12 @@
+"use client";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
 import { useAdminStore } from "@/lib/store";
 
@@ -31,18 +33,14 @@ export default function AddMember() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto py-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-2xl">Add New Member</CardTitle>
-          <CardDescription className="text-lg">Register a new team member to the portal.</CardDescription>
-        </CardHeader>
-        <CardContent>
+    <div className="max-w-2xl mx-auto">
+      <Card className="border-border/40 shadow-sm">
+        <CardContent className="pt-8">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <FormField control={form.control} name="name" render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-lg">Full Name</FormLabel>
+                  <FormLabel className="text-lg font-semibold">Full Name</FormLabel>
                   <FormControl><Input className="h-12 text-lg" placeholder="e.g. John Doe" {...field} /></FormControl>
                   <FormMessage />
                 </FormItem>
@@ -51,14 +49,14 @@ export default function AddMember() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField control={form.control} name="email" render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-lg">Email</FormLabel>
+                    <FormLabel className="text-lg font-semibold">Email</FormLabel>
                     <FormControl><Input className="h-12 text-lg" placeholder="john@example.com" type="email" {...field} /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )} />
                 <FormField control={form.control} name="contact" render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-lg">Contact Number</FormLabel>
+                    <FormLabel className="text-lg font-semibold">Contact Number</FormLabel>
                     <FormControl><Input className="h-12 text-lg" placeholder="Phone number" {...field} /></FormControl>
                     <FormMessage />
                   </FormItem>
@@ -68,14 +66,14 @@ export default function AddMember() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField control={form.control} name="role" render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-lg">Role</FormLabel>
+                    <FormLabel className="text-lg font-semibold">Role</FormLabel>
                     <FormControl><Input className="h-12 text-lg" placeholder="e.g. Librarian" {...field} /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )} />
                 <FormField control={form.control} name="department" render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-lg">Department</FormLabel>
+                    <FormLabel className="text-lg font-semibold">Department</FormLabel>
                     <FormControl><Input className="h-12 text-lg" placeholder="e.g. Main Library" {...field} /></FormControl>
                     <FormMessage />
                   </FormItem>

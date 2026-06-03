@@ -1,3 +1,5 @@
+"use client";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -12,7 +14,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
 import { useAdminStore } from "@/lib/store";
 
@@ -43,15 +45,9 @@ export default function ReturnBook() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto py-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-2xl">Return a Book</CardTitle>
-          <CardDescription className="text-lg">
-            Enter the Book Issue ID to process a return.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+    <div className="max-w-2xl mx-auto">
+      <Card className="border-border/40 shadow-sm">
+        <CardContent className="pt-8">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
               <FormField
@@ -59,7 +55,7 @@ export default function ReturnBook() {
                 name="bookIssueID"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-lg">Book Issue ID</FormLabel>
+                    <FormLabel className="text-lg font-semibold">Book Issue ID</FormLabel>
                     <FormControl>
                       <Input className="h-14 text-lg" placeholder="e.g. ISSUE-1234" {...field} />
                     </FormControl>
