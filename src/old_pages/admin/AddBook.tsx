@@ -19,6 +19,7 @@ const formSchema = z.object({
   year: z.string().min(4, "Year must be 4 digits."),
   abstract: z.string().min(10, "Please provide a longer description."),
   shelf: z.string().min(2, "Shelf location is required."),
+  totalUnits: z.string().optional(),
   versesFile: z.any().optional(),
 });
 
@@ -27,16 +28,19 @@ export default function AddBook() {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: { title: "", master: "", year: "", abstract: "", shelf: "" },
+    defaultValues: { title: "", master: "", year: "", abstract: "", shelf: "", totalUnits: "1" },
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
+    const totalUnitsNum = parseInt(values.totalUnits || "1", 10);
     addBook({
       title: values.title,
       master: values.master,
       year: parseInt(values.year, 10),
       abstract: values.abstract,
       shelf: values.shelf,
+      totalUnits: totalUnitsNum,
+      availableUnits: totalUnitsNum,
       languages: [], // Added to satisfy types
       categories: [], // Added to satisfy types
     });
@@ -85,9 +89,17 @@ export default function AddBook() {
                     <FormMessage />
                   </FormItem>
                 )} />
+
+                <FormField control={form.control} name="totalUnits" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-lg font-semibold">Total Units</FormLabel>
+                    <FormControl><Input className="h-12 text-lg" placeholder="Total Units" type="number" min="1" {...field} /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
                 
                 <FormField control={form.control} name="shelf" render={({ field }) => (
-                  <FormItem className="md:col-span-2">
+                  <FormItem>
                     <FormLabel className="text-lg font-semibold">Shelf Location</FormLabel>
                     <FormControl><Input className="h-12 text-lg" placeholder="e.g. Shelf A - Row 1" {...field} /></FormControl>
                     <FormMessage />

@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { useAdminStore } from "@/lib/store";
-import { Trash2, Edit } from "lucide-react";
+import { Trash2, Edit, Download } from "lucide-react";
 import { toast } from "sonner";
 import { Book, MASTERS } from "@/data/books";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -20,6 +20,8 @@ export default function ModifyBook() {
   const [editTitle, setEditTitle] = useState("");
   const [editMaster, setEditMaster] = useState("");
   const [editYear, setEditYear] = useState("");
+  const [editTotalUnits, setEditTotalUnits] = useState("");
+  const [editAvailableUnits, setEditAvailableUnits] = useState("");
 
   const handleDelete = (id: number) => {
     deleteBook(id);
@@ -31,22 +33,67 @@ export default function ModifyBook() {
     setEditTitle(book.title);
     setEditMaster(book.master);
     setEditYear(book.year.toString());
+    setEditTotalUnits((book.totalUnits ?? 1).toString());
+    setEditAvailableUnits((book.availableUnits ?? (book.available ? 1 : 0)).toString());
   };
 
   const handleSaveEdit = () => {
     if (editingBook) {
+      const newTotal = parseInt(editTotalUnits, 10) || 1;
+      const newAvailable = parseInt(editAvailableUnits, 10) || 0;
       updateBook(editingBook.id, {
         title: editTitle,
         master: editMaster,
         year: parseInt(editYear, 10) || editingBook.year,
+        totalUnits: newTotal,
+        availableUnits: newAvailable,
+        available: newAvailable > 0
       });
       toast.success(`Book ID ${editingBook.id} updated successfully.`);
       setEditingBook(null);
     }
   };
 
+  const handleExportCSV = () => {
+    const headers = ["ID", "Title", "Master", "Year", "Shelf", "Total Units", "Available Units", "Status"];
+    const csvRows = [headers.join(",")];
+    
+    books.forEach(book => {
+      const total = book.totalUnits ?? 1;
+      const avail = book.availableUnits ?? (book.available ? 1 : 0);
+      const status = avail > 0 ? "Available" : "Issued";
+      
+      const row = [
+        book.id,
+        `"${book.title.replace(/"/g, '""')}"`,
+        `"${book.master}"`,
+        book.year,
+        `"${book.shelf}"`,
+        total,
+        avail,
+        status
+      ];
+      csvRows.push(row.join(","));
+    });
+    
+    const csvContent = "data:text/csv;charset=utf-8," + csvRows.join("\\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "books_export.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast.success("Books data exported successfully.");
+  };
+
   return (
     <div className="max-w-6xl mx-auto">
+      <div className="flex justify-end mb-4">
+        <Button onClick={handleExportCSV} variant="outline" className="flex items-center gap-2">
+          <Download className="w-4 h-4" /> Export CSV
+        </Button>
+      </div>
       <Card className="border-border/40 shadow-sm">
         <CardContent className="p-0">
           <Table>
@@ -55,18 +102,25 @@ export default function ModifyBook() {
                 <TableHead className="w-[80px] py-5 px-6 font-semibold">ID</TableHead>
                 <TableHead className="py-5 px-6 font-semibold">Title</TableHead>
                 <TableHead className="py-5 px-6 font-semibold">Master</TableHead>
-                <TableHead className="py-5 px-6 font-semibold">Status</TableHead>
+                <TableHead className="py-5 px-6 font-semibold text-center">Units</TableHead>
+                <TableHead className="py-5 px-6 font-semibold text-center">Status</TableHead>
                 <TableHead className="text-right py-5 px-6 font-semibold">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {books.map((book) => (
+              {books.map((book) => {
+                const total = book.totalUnits ?? 1;
+                const avail = book.availableUnits ?? (book.available ? 1 : 0);
+                return (
                 <TableRow key={book.id} className="hover:bg-muted/20 transition-colors">
                   <TableCell className="font-medium py-4 px-6">{book.id}</TableCell>
                   <TableCell className="py-4 px-6 font-medium">{book.title}</TableCell>
                   <TableCell className="text-muted-foreground py-4 px-6">{book.master}</TableCell>
-                  <TableCell className="py-4 px-6">
-                    {book.available ? (
+                  <TableCell className="text-center py-4 px-6 font-medium">
+                    {avail} / {total}
+                  </TableCell>
+                  <TableCell className="text-center py-4 px-6">
+                    {avail > 0 ? (
                       <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200">
                         Available
                       </span>
@@ -85,7 +139,7 @@ export default function ModifyBook() {
                     </Button>
                   </TableCell>
                 </TableRow>
-              ))}
+              )})}
             </TableBody>
           </Table>
         </CardContent>
@@ -132,6 +186,30 @@ export default function ModifyBook() {
                 type="number"
                 value={editYear}
                 onChange={(e) => setEditYear(e.target.value)}
+                className="col-span-3 h-12 text-lg"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="totalUnits" className="text-right text-lg">
+                Total Units
+              </Label>
+              <Input
+                id="totalUnits"
+                type="number"
+                value={editTotalUnits}
+                onChange={(e) => setEditTotalUnits(e.target.value)}
+                className="col-span-3 h-12 text-lg"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="availableUnits" className="text-right text-lg">
+                Available
+              </Label>
+              <Input
+                id="availableUnits"
+                type="number"
+                value={editAvailableUnits}
+                onChange={(e) => setEditAvailableUnits(e.target.value)}
                 className="col-span-3 h-12 text-lg"
               />
             </div>

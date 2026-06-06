@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { useAdminStore } from "@/lib/store";
-import { Trash2 } from "lucide-react";
+import { Trash2, Download } from "lucide-react";
 import { toast } from "sonner";
 
 export default function TeamMembers() {
@@ -15,8 +15,40 @@ export default function TeamMembers() {
     toast.success(`${name} removed successfully.`);
   };
 
+  const handleExportCSV = () => {
+    const headers = ["ID", "Name", "Role", "Department", "Contact", "Email"];
+    const csvRows = [headers.join(",")];
+    
+    teamMembers.forEach(member => {
+      const row = [
+        member.id,
+        `"${member.name.replace(/"/g, '""')}"`,
+        `"${member.role}"`,
+        `"${member.department}"`,
+        `"${member.contact}"`,
+        `"${member.email || ""}"`
+      ];
+      csvRows.push(row.join(","));
+    });
+    
+    const csvContent = "data:text/csv;charset=utf-8," + csvRows.join("\\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "team_members_export.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast.success("Team members data exported successfully.");
+  };
+
   return (
     <div className="max-w-6xl mx-auto">
+      <div className="flex justify-end mb-4">
+        <Button onClick={handleExportCSV} variant="outline" className="flex items-center gap-2">
+          <Download className="w-4 h-4" /> Export CSV
+        </Button>
+      </div>
       <Card className="border-border/40 shadow-sm">
         <CardContent className="p-0">
           <Table>

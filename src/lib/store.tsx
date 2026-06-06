@@ -53,7 +53,25 @@ export function AdminStoreProvider({ children }: { children: React.ReactNode }) 
   // Load from local storage on mount
   useEffect(() => {
     const savedBooks = localStorage.getItem("admin_books");
-    if (savedBooks) setBooks(JSON.parse(savedBooks));
+    if (savedBooks) {
+      try {
+        const parsed = JSON.parse(savedBooks) as Book[];
+        const merged = parsed.map(b => {
+          const initial = initialBooks.find(ib => ib.id === b.id);
+          if (initial) {
+            return {
+              ...b,
+              totalUnits: b.totalUnits !== undefined ? b.totalUnits : initial.totalUnits,
+              availableUnits: b.availableUnits !== undefined ? b.availableUnits : initial.availableUnits,
+            };
+          }
+          return b;
+        });
+        setBooks(merged);
+      } catch (e) {
+        setBooks(JSON.parse(savedBooks));
+      }
+    }
 
     const savedMembers = localStorage.getItem("admin_members");
     if (savedMembers) setTeamMembers(JSON.parse(savedMembers));
@@ -104,7 +122,20 @@ export function AdminStoreProvider({ children }: { children: React.ReactNode }) 
     const newId = `ISSUE-${Math.floor(Math.random() * 10000)}`;
     const newIssue = { ...issueData, id: newId };
     setIssues([...issues, newIssue]);
-    setBooks(books.map((b) => b.id === issueData.bookId ? { ...b, available: false } : b));
+    setBooks(books.map((b) => {
+      if (b.id === issueData.bookId) {
+        const currentTotal = b.totalUnits ?? 1;
+        const currentAvail = b.availableUnits ?? (b.available ? 1 : 0);
+        const newAvail = Math.max(0, currentAvail - 1);
+        return { 
+          ...b, 
+          availableUnits: newAvail,
+          totalUnits: currentTotal,
+          available: newAvail > 0 
+        };
+      }
+      return b;
+    }));
     return newId;
   };
 
@@ -113,7 +144,20 @@ export function AdminStoreProvider({ children }: { children: React.ReactNode }) 
     if (!issue) return false;
     
     setIssues(issues.filter((i) => i.id !== issueId));
-    setBooks(books.map((b) => b.id === issue.bookId ? { ...b, available: true } : b));
+    setBooks(books.map((b) => {
+      if (b.id === issue.bookId) {
+        const currentTotal = b.totalUnits ?? 1;
+        const currentAvail = b.availableUnits ?? (b.available ? 1 : 0);
+        const newAvail = Math.min(currentTotal, currentAvail + 1);
+        return { 
+          ...b, 
+          availableUnits: newAvail,
+          totalUnits: currentTotal,
+          available: true 
+        };
+      }
+      return b;
+    }));
     return true;
   };
 

@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useAuth } from "@/lib/auth";
 import {
   Sidebar,
   SidebarContent,
@@ -18,6 +20,28 @@ import { BookPlus, Edit, Users, UserPlus, ArrowRightLeft, Undo2, LayoutDashboard
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const { user, loading, logout } = useAuth();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (mounted && !loading && (!user || !user.isAdmin)) {
+      router.push(`/login?redirect=${encodeURIComponent(pathname)}`);
+    }
+  }, [user, loading, mounted, pathname, router]);
+
+  if (!mounted || loading || !user || !user.isAdmin) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-background gap-4">
+        <div className="w-8 h-8 rounded-full border-2 border-gold border-t-transparent animate-spin" />
+        <p className="text-muted-foreground text-xs tracking-[0.2em] uppercase font-semibold">Verifying credentials...</p>
+      </div>
+    );
+  }
 
   const menuGroups = [
     {
@@ -59,7 +83,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 <Flower2 className="w-6 h-6 text-gold" />
               </div>
               <div>
-                <h2 className="font-bold tracking-tight text-sm">SKRM / SOS</h2>
+                <h2 className="font-bold tracking-tight text-sm">Darshan Library</h2>
                 <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold">Admin Portal</p>
               </div>
             </Link>
@@ -120,12 +144,22 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
+                  <span className="text-xs text-muted-foreground hidden sm:inline">Logged in as <strong className="text-foreground">{user?.name}</strong></span>
                   <Link 
                     href="/"
                     className="text-xs font-bold uppercase tracking-widest text-gold hover:text-gold/80 transition-colors border border-gold/20 px-4 py-2 rounded-full bg-background/50 backdrop-blur-sm"
                   >
                     View Library
                   </Link>
+                  <button 
+                    onClick={() => {
+                      logout();
+                      router.push("/login");
+                    }}
+                    className="text-xs font-bold uppercase tracking-widest text-red-500 hover:text-red-400 hover:bg-red-500/5 transition-all border border-red-500/20 px-4 py-2 rounded-full bg-background/50 backdrop-blur-sm animate-pulse-subtle"
+                  >
+                    Logout
+                  </button>
                 </div>
               </div>
             </div>
